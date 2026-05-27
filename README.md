@@ -25,12 +25,48 @@ source dataset can't be used for that as it ships, for three reasons:
 
 So we kept the dataset's real measured values and rewrote the notes around them.
 
+## Before and after (patient P1000)
+
+In the original dataset, patient P1000 looks like this:
+
+> **Physician note:** "Patient reports difficulty breathing during sleep."
+> **Columns:** AHI 43.0, SpO2 96%, severity = "Mild"
+
+There are no numbers in the note, so there is nothing to extract. The severity is also
+wrong: an AHI of 43 is **severe**, not mild. The cut-offs are set by the American Academy
+of Sleep Medicine (AASM Task Force, *Sleep* 1999):
+
+| AHI (events/hr) | Severity |
+|-----------------|----------|
+| < 5             | None     |
+| 5 – 15          | Mild     |
+| 15 – 30         | Moderate |
+| ≥ 30            | Severe   |
+
+Our note for the same patient, with the three target spans shown in **bold**:
+
+> SLEEP STUDY INTERPRETATION
+>
+> 56-year-old woman referred for evaluation of unrefreshing sleep and witnessed pauses in
+> breathing. She denies habitual snoring. Epworth Sleepiness Scale 14/24. Diagnostic
+> polysomnography was performed on 02/14/2023 using a 16-channel montage.
+>
+> The study demonstrated frequent obstructive respiratory events, most pronounced in REM
+> and the supine position, yielding an apnea-hypopnea index of **43** events per hour.
+> Despite the elevated event frequency, oxygenation was relatively preserved: mean oxygen
+> saturation **97**% with a nadir of **96**%. Arousal index 39/hr.
+>
+> IMPRESSION: **Severe** obstructive sleep apnea. Recommend CPAP titration.
+
+The three bold numbers are the `AHI` (43), `SPO2_MEAN` (97), and `SPO2_NADIR` (96) spans.
+The values now appear in the text where a model can find them, and the severity matches the
+AHI.
+
 ## How we built it
 
 1. **Cleaned the values** (`sdb_clean.csv`). Rounded AHI to one decimal. Used the higher of
    the two oxygen columns as mean SpO2 and the lower as the nadir. Recomputed severity from
-   AHI using the standard AASM cut-offs — mild 5–15, moderate 15–30, severe ≥30 (American
-   Academy of Sleep Medicine).
+   AHI using the AASM cut-offs shown in the table above.
 2. **Wrote one note per patient.** Each note reads like a real polysomnography report (we
    based the structure and wording on de-identified examples from MTSamples) and states that
    patient's AHI, mean SpO2, and nadir SpO2 in ordinary clinical language. Each note also

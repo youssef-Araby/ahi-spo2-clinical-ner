@@ -29,7 +29,7 @@ inconsistencies before any text is produced:
 |-------|-------|-----------|
 | `AHI` | 14-digit spurious precision | round to one decimal |
 | oxygen columns | two uncorrelated SpO2 columns (r = −0.06), neither ordered | per record, `SpO2_mean = max(·)`, `SpO2_nadir = min(·)`, enforcing mean ≥ nadir |
-| `Severity` | uncorrelated with AHI, 131 missing | recompute from AHI (Mild 5–15, Moderate 15–30, Severe ≥30) |
+| `Severity` | uncorrelated with AHI, 131 missing | recompute from AHI using AASM cut-offs (Mild 5–15, Moderate 15–30, Severe ≥30) [AASM Task Force, *Sleep* 1999] |
 | diagnosis | redundant, 119 missing | derive `SDB_present = AHI ≥ 5` |
 
 This yields a clean table of physiologically ordered, internally consistent values

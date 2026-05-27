@@ -95,11 +95,12 @@ def decode(tokens, labels):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
+    ap.add_argument("--gold", help="evaluate on this JSONL instead of a standard split")
     ap.add_argument("--save")
     args = ap.parse_args()
 
     train = load_jsonl(ROOT / "data" / "notes_train.jsonl")
-    eval_set = load_jsonl(ROOT / "data" / f"notes_{args.split}.jsonl")
+    eval_set = load_jsonl(args.gold or ROOT / "data" / f"notes_{args.split}.jsonl")
 
     Xtr, Ytr, _ = featurize(train)
     Xev, _, toks_ev = featurize(eval_set)
@@ -114,8 +115,9 @@ def main():
     if args.save:
         Path(args.save).write_text("\n".join(json.dumps(p) for p in preds))
         print(f"wrote {len(preds)} predictions to {args.save}")
-    print(f"trained CRF on {len(train)} notes; evaluating on {len(eval_set)} ({args.split})")
-    print_report(evaluate(eval_set, preds), f"CRF baseline — {args.split} split")
+    tag = args.gold or args.split
+    print(f"trained CRF on {len(train)} notes; evaluating on {len(eval_set)} ({tag})")
+    print_report(evaluate(eval_set, preds), f"CRF baseline — {tag}")
 
 
 if __name__ == "__main__":

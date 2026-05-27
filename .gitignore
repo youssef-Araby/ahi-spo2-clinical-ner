@@ -40,3 +40,4 @@ outputs/
 data/*.jsonl
 data/*.csv
 data/original/
+data/*tagged*

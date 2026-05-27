@@ -72,16 +72,18 @@ def predict(records: list[dict]) -> list[dict]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
+    ap.add_argument("--gold", help="evaluate on this JSONL instead of a standard split")
     ap.add_argument("--save", help="optional path to write predictions JSONL")
     args = ap.parse_args()
 
-    gold = load_jsonl(ROOT / "data" / f"notes_{args.split}.jsonl")
+    gold_path = args.gold or ROOT / "data" / f"notes_{args.split}.jsonl"
+    gold = load_jsonl(gold_path)
     preds = predict(gold)
     if args.save:
         import json
         Path(args.save).write_text("\n".join(json.dumps(p) for p in preds))
         print(f"wrote {len(preds)} predictions to {args.save}")
-    print_report(evaluate(gold, preds), f"Regex baseline — {args.split} split")
+    print_report(evaluate(gold, preds), f"Regex baseline — {args.gold or args.split}")
 
 
 if __name__ == "__main__":

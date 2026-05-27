@@ -92,12 +92,13 @@ def predict(records, model, tok, device):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
+    ap.add_argument("--gold", help="evaluate on this JSONL instead of a standard split")
     ap.add_argument("--epochs", type=int, default=8)
     args = ap.parse_args()
     set_seed(42)
 
     train = load_jsonl(ROOT / "data" / "notes_train.jsonl")
-    eval_set = load_jsonl(ROOT / "data" / f"notes_{args.split}.jsonl")
+    eval_set = load_jsonl(args.gold or ROOT / "data" / f"notes_{args.split}.jsonl")
 
     tok = AutoTokenizer.from_pretrained(MODEL)
     model = AutoModelForTokenClassification.from_pretrained(
@@ -116,7 +117,7 @@ def main():
     trainer.train()
 
     preds = predict(eval_set, model, tok, device)
-    print_report(evaluate(eval_set, preds), f"ClinicalBERT — {args.split} split")
+    print_report(evaluate(eval_set, preds), f"ClinicalBERT — {args.gold or args.split}")
 
 
 if __name__ == "__main__":

@@ -27,14 +27,32 @@ So we kept the dataset's real measured values and rewrote the notes around them.
 
 ## Before and after (patient P1000)
 
-In the original dataset, patient P1000 looks like this:
+Here is the **complete original row** for patient P1000:
 
-> **Physician note:** "Patient reports difficulty breathing during sleep."
-> **Columns:** AHI 43.0, SpO2 96%, severity = "Mild"
+| Column | Value |
+|--------|-------|
+| Age | 56 |
+| Gender | Female |
+| BMI | 27.2 |
+| Snoring | False |
+| Oxygen_Saturation | 96.96 |
+| AHI | 42.996 |
+| ECG_Heart_Rate | 90 |
+| SpO2 | 96.27 |
+| Nasal_Airflow | 0.51 |
+| Chest_Movement | 0.12 |
+| Diagnosis_of_SDB | Severe |
+| Severity | Mild |
+| Treatment_Required | True |
+| CPAP | True |
+| Surgery | False |
+| Physician_Notes | "Patient reports difficulty breathing during sleep." |
+| Patient_Symptoms | "No issues related to sleep, feels rested." |
 
-There are no numbers in the note, so there is nothing to extract. The severity is also
-wrong: an AHI of 43 is **severe**, not mild. The cut-offs are set by the American Academy
-of Sleep Medicine (AASM Task Force, *Sleep* 1999):
+Two problems are visible. The note fields contain no numbers, so there is nothing to
+extract. And the labels contradict each other — `Severity` says "Mild" while
+`Diagnosis_of_SDB` says "Severe" for the same patient — and by the AASM cut-offs an AHI of
+43 is severe, not mild (AASM Task Force, *Sleep* 1999):
 
 | AHI (events/hr) | Severity |
 |-----------------|----------|
@@ -58,9 +76,23 @@ Our note for the same patient, with the three target spans shown in **bold**:
 >
 > IMPRESSION: **Severe** obstructive sleep apnea. Recommend CPAP titration.
 
-The three bold numbers are the `AHI` (43), `SPO2_MEAN` (97), and `SPO2_NADIR` (96) spans.
-The values now appear in the text where a model can find them, and the severity matches the
-AHI.
+**Every clinical fact in the note is taken from the row above — none of it is invented:**
+
+| In the note | Comes from the row |
+|-------------|--------------------|
+| "56-year-old" | `Age` = 56 |
+| "woman" | `Gender` = Female |
+| "denies habitual snoring" | `Snoring` = False |
+| "apnea-hypopnea index of **43**" (`AHI` span) | `AHI` = 42.996 → 43.0 |
+| "mean oxygen saturation **97**%" (`SPO2_MEAN` span) | max(`Oxygen_Saturation` 96.96, `SpO2` 96.27) |
+| "nadir of **96**%" (`SPO2_NADIR` span) | min(`Oxygen_Saturation` 96.96, `SpO2` 96.27) |
+| "**Severe** obstructive sleep apnea" | severity recomputed from `AHI` (the row's "Mild" was wrong) |
+| "Recommend CPAP titration" | `CPAP` = True |
+
+(`BMI` and `ECG_Heart_Rate` from the row are written into many other patients' notes.) The
+only invented parts are realistic report filler — the study date, the Epworth score,
+"16-channel montage", and the arousal index — which are deliberately **not** labelled, so
+they act as distractors the model must learn to ignore.
 
 ## How we built it
 

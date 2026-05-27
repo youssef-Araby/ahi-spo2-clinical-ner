@@ -67,11 +67,15 @@ AHI.
 1. **Cleaned the values** (`sdb_clean.csv`). Rounded AHI to one decimal. Used the higher of
    the two oxygen columns as mean SpO2 and the lower as the nadir. Recomputed severity from
    AHI using the AASM cut-offs shown in the table above.
-2. **Wrote one note per patient.** Each note reads like a real polysomnography report (we
-   based the structure and wording on de-identified examples from MTSamples) and states that
-   patient's AHI, mean SpO2, and nadir SpO2 in ordinary clinical language. Each note also
+2. **Wrote one note per patient with Claude Opus 4.7.** Using each patient's cleaned values
+   (AHI, mean SpO2, nadir SpO2, severity, age, sex, BMI) as input, we generated the note text
+   with the large language model Claude Opus 4.7 (Anthropic). The notes follow the section
+   structure and wording of real de-identified polysomnography reports from MTSamples [1]
+   (Clinical Information → Study Protocol → Respiratory Measurements → Impression) and state
+   the patient's AHI, mean SpO2, and nadir SpO2 in ordinary clinical language. Each note also
    carries the other numbers a real report has — dates, BMI, heart rate, sleep-stage
    percentages, arousal index — so the three targets are not the only numbers on the page.
+   (We first tried fixed templates, but the text was too formulaic, so we used the model.)
 3. **Checked every label.** The three values were marked as the note was written, then
    compared against the cleaned values; any note that didn't match was dropped. The released
    set has 1,500 entities and no span errors.
@@ -110,6 +114,21 @@ One JSON object per line:
 - In the source data the oxygen values don't track AHI, so a few notes describe unusual
   combinations (for example a high AHI with a near-normal nadir). We kept the real numbers
   rather than invent correlations.
+
+## Sources
+
+- **[1] Note structure — MTSamples, Sleep Medicine specialty.** De-identified transcribed
+  reports we used as the template for section structure and phrasing. Examples:
+  - Overnight Polysomnogram — https://mtsamples.com/site/pages/sample.asp?Type=78-Sleep+Medicine&Sample=1163-Overnight+Polysomnogram
+  - Polysomnography — https://mtsamples.com/site/pages/sample.asp?Type=78-Sleep+Medicine&Sample=1483-Polysomnography
+  - Sleep Study Interpretation — https://mtsamples.com/site/pages/sample.asp?Type=78-Sleep+Medicine&Sample=668-Sleep+Study+Interpretation
+- **[2] Severity cut-offs — AASM.** American Academy of Sleep Medicine Task Force.
+  *Sleep-related breathing disorders in adults: recommendations for syndrome definition and
+  measurement techniques in clinical research.* Sleep. 1999;22(5):667–689.
+- **Source dataset.** `ziya07/sleep-disordered-breathing-detection`, Kaggle (CC0):
+  https://www.kaggle.com/datasets/ziya07/sleep-disordered-breathing-detection
+- **Note-generation model.** Claude Opus 4.7 (Anthropic), used to write the note text from
+  each patient's cleaned values. All generated values were verified against the source data.
 
 ## License
 

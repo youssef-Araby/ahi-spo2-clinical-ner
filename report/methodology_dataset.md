@@ -39,14 +39,17 @@ This yields a clean table of physiologically ordered, internally consistent valu
 
 Because no usable free text exists, we **generate** clinical notes ourselves,
 conditioned on each patient's cleaned values. To obtain natural clinical language we
-authored the notes with a large language model rather than fixed templates: an
-initial template-based generator produced text that was fluent but visibly
-formulaic across records, so it was discarded in favour of LLM-authored prose that
-varies in document type (full polysomnography report, sleep-clinic consultation,
-attending interpretation, dictated summary, follow-up note), register, sentence
-structure, and section ordering. The notes are modelled on the structure and
-phrasing of real de-identified polysomnography reports (MTSamples, Sleep Medicine
-specialty), which we reviewed to fix section conventions
+authored the notes with the large language model **Claude Opus 4.7** (Anthropic)
+rather than fixed templates: an initial template-based generator produced text that
+was fluent but visibly formulaic across records, so it was discarded in favour of
+LLM-authored prose that varies in document type (full polysomnography report,
+sleep-clinic consultation, attending interpretation, dictated summary, follow-up
+note), register, sentence structure, and section ordering. The model received each
+patient's cleaned values (AHI, mean and nadir SpO2, severity, age, sex, BMI) and was
+instructed to write a report that states those values in natural language. The notes
+are modelled on the structure and phrasing of real de-identified polysomnography
+reports (MTSamples, Sleep Medicine specialty [1]), which we reviewed to fix section
+conventions
 (`CLINICAL INFORMATION → STUDY PROTOCOL → RESPIRATORY MEASUREMENTS → IMPRESSION`)
 and the natural surface forms of each metric (e.g. "apnea-hypopnea index of 43
 events per hour", "lowest oxygen saturation 88%", "oxygen desaturation down to …").
@@ -82,3 +85,20 @@ a near-normal nadir); we preserve the dataset's true numbers rather than fabrica
 correlations, and flag this explicitly. As an external check, a small set of real
 MTSamples polysomnography reports can be hand-annotated to test cross-domain
 generalisation.
+
+## References
+
+[1] MTSamples, Sleep Medicine specialty — de-identified transcribed polysomnography
+reports used as the structural and phrasing template, e.g. *Overnight Polysomnogram*,
+*Polysomnography*, and *Sleep Study Interpretation*
+(https://mtsamples.com/site/pages/sitemap.asp, Type 78).
+
+[2] American Academy of Sleep Medicine Task Force. *Sleep-related breathing disorders in
+adults: recommendations for syndrome definition and measurement techniques in clinical
+research.* Sleep. 1999;22(5):667–689. (AHI severity cut-offs: mild 5–15, moderate 15–30,
+severe ≥30.)
+
+[3] Source dataset: `ziya07/sleep-disordered-breathing-detection`, Kaggle (CC0).
+
+[4] Note-generation model: Claude Opus 4.7 (Anthropic). All model-written target values
+were verified against the cleaned source values; mismatches were discarded.

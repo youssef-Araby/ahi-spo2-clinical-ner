@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Credentials — never commit
+kaggle.json
+access_token
+*.pem
+
+# Model artifacts / training outputs (modeling phase)
+*.pt
+*.bin
+*.safetensors
+*.ckpt
+*.h5
+checkpoints/
+runs/
+wandb/
+mlruns/
+outputs/
+
+# Misc
+*.log
+.cache/
+
+# Dataset files — published on Kaggle, kept local only (not committed)
+data/*.jsonl
+data/*.csv
+data/original/

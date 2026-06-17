@@ -36,8 +36,11 @@ outputs/
 *.log
 .cache/
 
-# Dataset files — published on Kaggle, kept local only (not committed)
-data/*.jsonl
-data/*.csv
-data/original/
-data/*tagged*
+# Dataset — kept local only, never pushed (published separately on Kaggle)
+data/
+
+# Archived scratch: intermediate per-record dumps + superseded docs (kept local)
+archive/
+
+# Per-record tagged dumps the generator may emit into report/ (scratch, never push)
+report/*.tagged.txt

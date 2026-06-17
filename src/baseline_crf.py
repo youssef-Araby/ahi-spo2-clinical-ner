@@ -96,10 +96,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test", choices=["train", "val", "test"])
     ap.add_argument("--gold", help="evaluate on this JSONL instead of a standard split")
+    ap.add_argument("--train", help="train on this JSONL instead of data/notes_train.jsonl")
     ap.add_argument("--save")
     args = ap.parse_args()
 
-    train = load_jsonl(ROOT / "data" / "notes_train.jsonl")
+    train = load_jsonl(args.train or ROOT / "data" / "notes_train.jsonl")
     eval_set = load_jsonl(args.gold or ROOT / "data" / f"notes_{args.split}.jsonl")
 
     Xtr, Ytr, _ = featurize(train)
